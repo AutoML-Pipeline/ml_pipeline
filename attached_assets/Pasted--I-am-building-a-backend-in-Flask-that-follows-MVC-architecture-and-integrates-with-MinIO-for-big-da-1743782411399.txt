@@ -1,0 +1,86 @@
+"I am building a backend in Flask that follows MVC architecture and integrates with MinIO for big data storage. The backend will handle an end-to-end machine learning pipeline, enabling users to upload large datasets, process them with Spark, and train ML models.
+I need you to generate a well-structured Flask backend with the following features:
+
+1️⃣ Project Structure (MVC)
+Controllers: Handles API requests for ML workflow.
+
+Models: Defines database schemas and ML pipeline models.
+
+Services: Implements core business logic (file handling, Spark processing, ML pipeline execution).
+
+Routes: Defines API endpoints for each step of the pipeline.
+
+2️⃣ Core Functionalities
+✅ Big Data Ingestion & Storage (MinIO)
+
+Users upload large datasets (CSV, Parquet, JSON).
+
+Files are stored in MinIO with structured naming.
+
+✅ Data Preprocessing (Apache Spark)
+
+Read data from MinIO using PySpark.
+
+Handle missing values, outliers, normalization.
+
+✅ Feature Engineering
+
+Extract and transform features for ML models.
+
+✅ Model Selection & Training
+
+Allow users to choose ML models (Random Forest, XGBoost, etc.).
+
+Train models on processed data.
+
+Store trained models in MinIO.
+
+✅ Model Evaluation
+
+Compute accuracy, precision, recall, etc.
+
+Save evaluation reports.
+
+✅ Data & Model Visualization
+
+Generate and serve charts (matplotlib, seaborn).
+
+✅ Deployment
+
+Serve trained models via REST API.
+
+3️⃣ RESTful API Endpoints
+Endpoint	Function
+/data_ingestion	Upload and store big data in MinIO.
+/data_preprocessing	Perform data cleaning and transformation.
+/feature_engineering	Extract features for ML models.
+/model_selection	Select the best ML model for training.
+/model_training_evaluation	Train the model and evaluate its performance.
+/visualization	Generate visualizations from the data.
+/deployment	Deploy the trained ML model as an API.
+4️⃣ Technologies
+Flask for backend API.
+
+Apache Spark for big data processing.
+
+MinIO for scalable storage.
+
+boto3 / MinIO SDK for handling MinIO.
+
+PostgreSQL / MongoDB for metadata storage.
+
+ML libraries: Scikit-Learn, TensorFlow, XGBoost, etc.
+
+💡 Expected Output:
+
+A Flask backend structured with MVC principles.
+
+API endpoints for the entire ML pipeline.
+
+MinIO integration for scalable file storage.
+
+Python scripts for Spark-based transformations.
+
+Deployment-ready ML model serving.
+
+✨ Generate the complete backend code with configurations, service layer logic, and documentation.
