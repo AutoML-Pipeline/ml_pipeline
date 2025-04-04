@@ -1,52 +1,43 @@
 import os
 
-# MinIO Configuration
-MINIO_ENDPOINT = os.environ.get('MINIO_ENDPOINT', 'localhost:9000')
-MINIO_ACCESS_KEY = os.environ.get('MINIO_ACCESS_KEY', 'minioadmin')
-MINIO_SECRET_KEY = os.environ.get('MINIO_SECRET_KEY', 'minioadmin')
-MINIO_SECURE = os.environ.get('MINIO_SECURE', 'False').lower() == 'true'
+# Flask configuration
+DEBUG = True
+SECRET_KEY = os.environ.get("SESSION_SECRET", "default-dev-key")
 
-# Buckets
-DATA_BUCKET = 'ml-datasets'
-MODEL_BUCKET = 'ml-models'
-VISUALIZATION_BUCKET = 'ml-visualizations'
-EVALUATION_BUCKET = 'ml-evaluations'
+# MinIO configuration
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
+MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
+MINIO_SECURE = os.environ.get("MINIO_SECURE", "False").lower() == "true"
 
-# Spark Configuration
-SPARK_MASTER = os.environ.get('SPARK_MASTER', 'local[*]')
-SPARK_APP_NAME = 'MLPipeline'
+# MinIO bucket configuration
+BUCKET_DATA_RAW = "raw-data"
+BUCKET_DATA_PROCESSED = "processed-data"
+BUCKET_MODELS = "ml-models"
+BUCKET_VISUALIZATIONS = "visualizations"
+BUCKET_EVALUATIONS = "model-evaluations"
 
-# Model Configuration
-AVAILABLE_MODELS = [
-    'RandomForest',
-    'XGBoost',
-    'LogisticRegression',
-    'DecisionTree',
-    'SVM'
-]
+# Spark configuration
+SPARK_APP_NAME = "ML-Pipeline"
+SPARK_MASTER = os.environ.get("SPARK_MASTER", "local[*]")
+SPARK_EXECUTOR_MEMORY = os.environ.get("SPARK_EXECUTOR_MEMORY", "2g")
+SPARK_DRIVER_MEMORY = os.environ.get("SPARK_DRIVER_MEMORY", "2g")
 
-# Evaluation Metrics
-EVALUATION_METRICS = [
-    'accuracy',
-    'precision',
-    'recall',
-    'f1',
-    'roc_auc'
-]
+# File upload settings
+MAX_CONTENT_LENGTH = 1024 * 1024 * 1024  # 1GB limit for uploads
+ALLOWED_EXTENSIONS = {'csv', 'parquet', 'json', 'jsonl'}
 
-# Visualization Types
-VISUALIZATION_TYPES = [
-    'histogram',
-    'scatter',
-    'correlation',
-    'feature_importance',
-    'confusion_matrix',
-    'roc_curve'
-]
+# ML model settings
+AVAILABLE_MODELS = {
+    "regression": ["linear_regression", "random_forest_regressor", "xgboost_regressor"],
+    "classification": ["logistic_regression", "random_forest_classifier", "xgboost_classifier"]
+}
 
-# Temporary directory for file operations
-TEMP_DIR = '/tmp/ml-pipeline'
+# Feature engineering settings
+DEFAULT_FEATURES = {
+    "numeric": ["mean", "median", "min", "max", "std"],
+    "categorical": ["one_hot_encoding", "label_encoding", "target_encoding"]
+}
 
-# Create temp directory if it doesn't exist
-if not os.path.exists(TEMP_DIR):
-    os.makedirs(TEMP_DIR)
+# Temporary storage paths
+TEMP_DIR = "/tmp/ml-pipeline"

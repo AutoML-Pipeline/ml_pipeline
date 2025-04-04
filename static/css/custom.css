@@ -1,0 +1,291 @@
+/* Custom CSS for ML Pipeline Platform */
+
+/* Base Styles */
+:root {
+    --primary-color: #6c5ce7;
+    --secondary-color: #0984e3;
+    --accent-color: #00cec9;
+    --success-color: #00b894;
+    --warning-color: #fdcb6e;
+    --danger-color: #e17055;
+    --dark-bg: #2d3436;
+    --darker-bg: #1e272e;
+    --light-text: #dfe6e9;
+}
+
+body {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+}
+
+.hero {
+    background-color: var(--darker-bg);
+    padding: 4rem 0;
+}
+
+.api-docs-header {
+    background-color: var(--darker-bg);
+}
+
+footer {
+    margin-top: auto;
+}
+
+/* Feature Icons */
+.feature-icon {
+    width: 48px;
+    height: 48px;
+    stroke: var(--primary-color);
+    stroke-width: 1;
+}
+
+.feather-small {
+    width: 16px;
+    height: 16px;
+}
+
+.icon-box {
+    background-color: rgba(108, 92, 231, 0.1);
+    width: 64px;
+    height: 64px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* Cards & Sections */
+.card {
+    transition: transform 0.3s ease, box-shadow 0.3s ease;
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.card:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.2);
+}
+
+.api-section {
+    padding-top: 20px;
+    margin-bottom: 40px;
+}
+
+.api-section h2 {
+    margin-bottom: 20px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+/* Code blocks */
+.code-block {
+    background-color: var(--darker-bg);
+    border-radius: 6px;
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.85rem;
+    overflow-x: auto;
+}
+
+/* Endpoint Cards */
+.endpoint-card {
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    overflow: hidden;
+}
+
+.endpoint-header {
+    background-color: var(--darker-bg);
+    padding: 12px 16px;
+    display: flex;
+    align-items: center;
+}
+
+.endpoint-header code {
+    font-family: 'SFMono-Regular', Consolas, 'Liberation Mono', Menlo, monospace;
+    font-size: 0.95rem;
+}
+
+.endpoint-body {
+    padding: 16px;
+}
+
+.endpoint-body h5 {
+    margin-bottom: 16px;
+}
+
+.endpoint-body h6 {
+    margin-top: 16px;
+    font-size: 0.9rem;
+    color: var(--light-text);
+}
+
+/* Technology Cards */
+.tech-card {
+    background-color: var(--darker-bg);
+    border-radius: 8px;
+    transition: transform 0.3s ease;
+}
+
+.tech-card:hover {
+    transform: translateY(-5px);
+}
+
+.tech-logo {
+    height: 50px;
+    max-width: 100%;
+    object-fit: contain;
+}
+
+/* Pipeline Diagram */
+.hero-image svg {
+    max-width: 100%;
+    height: auto;
+}
+
+.node {
+    fill: var(--darker-bg);
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+.node-text {
+    fill: #fff;
+    font-size: 12px;
+    font-family: Arial, sans-serif;
+}
+
+.arrow {
+    stroke: #fff;
+    stroke-width: 2;
+}
+
+.data-node {
+    fill: var(--primary-color);
+}
+
+.processing-node {
+    fill: var(--secondary-color);
+}
+
+.feature-node {
+    fill: var(--accent-color);
+}
+
+.model-node {
+    fill: var(--success-color);
+}
+
+.eval-node {
+    fill: var(--warning-color);
+}
+
+.deploy-node {
+    fill: var(--danger-color);
+}
+
+.predict-node {
+    fill: var(--primary-color);
+}
+
+/* Animation for nodes */
+@keyframes pulse {
+    0% { opacity: 0.7; }
+    50% { opacity: 1; }
+    100% { opacity: 0.7; }
+}
+
+.node {
+    animation: pulse 3s infinite;
+}
+
+.node:nth-child(1), .node:nth-child(2) {
+    animation-delay: 0s;
+}
+
+.node:nth-child(3), .node:nth-child(4) {
+    animation-delay: 0.5s;
+}
+
+.node:nth-child(5), .node:nth-child(6) {
+    animation-delay: 1s;
+}
+
+.node:nth-child(7), .node:nth-child(8) {
+    animation-delay: 1.5s;
+}
+
+/* Table styles */
+.table-sm {
+    font-size: 0.9rem;
+}
+
+/* Sticky nav enhancements */
+.sticky-top {
+    z-index: 1000;
+    top: 20px;
+}
+
+/* API Tester styles */
+#api-test-form .form-control {
+    background-color: var(--darker-bg);
+    border-color: rgba(255, 255, 255, 0.1);
+    color: var(--light-text);
+}
+
+#api-test-form .form-control:focus {
+    border-color: var(--primary-color);
+    box-shadow: 0 0 0 0.2rem rgba(108, 92, 231, 0.25);
+}
+
+#api-response-container {
+    border-top: 1px solid rgba(255, 255, 255, 0.1);
+    padding-top: 20px;
+    margin-top: 20px;
+}
+
+/* Responsive adjustments */
+@media (max-width: 767.98px) {
+    .hero {
+        padding: 2rem 0;
+    }
+    
+    .sticky-top {
+        position: static !important;
+        margin-bottom: 1.5rem;
+    }
+    
+    .display-4 {
+        font-size: 2rem;
+    }
+    
+    .lead {
+        font-size: 1rem;
+    }
+}
+
+/* Animation for links */
+a {
+    transition: color 0.3s ease;
+}
+
+a:hover {
+    color: var(--accent-color);
+}
+
+/* Button styles */
+.btn-primary {
+    background-color: var(--primary-color);
+    border-color: var(--primary-color);
+}
+
+.btn-primary:hover, .btn-primary:focus {
+    background-color: darken(var(--primary-color), 10%);
+    border-color: darken(var(--primary-color), 10%);
+}
+
+.btn-outline-light:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+    border-color: #fff;
+    color: #fff;
+}

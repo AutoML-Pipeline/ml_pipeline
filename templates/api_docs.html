@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en" data-bs-theme="dark">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Documentation - ML Pipeline Platform</title>
+    <link rel="stylesheet" href="https://cdn.replit.com/agent/bootstrap-agent-dark-theme.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.css">
+    <link rel="stylesheet" href="/static/css/custom.css">
+</head>
+<body>
+    <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
+        <div class="container">
+            <a class="navbar-brand" href="/">
+                <i data-feather="cpu" class="me-2"></i>
+                ML Pipeline Platform
+            </a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarNav" aria-controls="navbarNav" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+            </button>
+            <div class="collapse navbar-collapse" id="navbarNav">
+                <ul class="navbar-nav ms-auto">
+                    <li class="nav-item">
+                        <a class="nav-link" href="/"><i data-feather="home" class="feather-small me-1"></i>Home</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link active" href="/api/docs"><i data-feather="book" class="feather-small me-1"></i>API Docs</a>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </nav>
+
+    <header class="api-docs-header py-4">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-8 mx-auto text-center">
+                    <h1 class="display-5 fw-bold mb-3">API Documentation</h1>
+                    <p class="lead">
+                        Complete reference for the ML Pipeline RESTful API
+                    </p>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <section class="py-5">
+        <div class="container">
+            <div class="row">
+                <div class="col-lg-3 mb-4">
+                    <!-- API Navigation -->
+                    <div class="list-group sticky-top" style="top: 20px;" id="api-menu">
+                        <a href="#data-ingestion" class="list-group-item list-group-item-action">Data Ingestion</a>
+                        <a href="#data-preprocessing" class="list-group-item list-group-item-action">Data Preprocessing</a>
+                        <a href="#feature-engineering" class="list-group-item list-group-item-action">Feature Engineering</a>
+                        <a href="#model-selection" class="list-group-item list-group-item-action">Model Selection</a>
+                        <a href="#model-training" class="list-group-item list-group-item-action">Model Training & Evaluation</a>
+                        <a href="#visualization" class="list-group-item list-group-item-action">Visualization</a>
+                        <a href="#deployment" class="list-group-item list-group-item-action">Deployment</a>
+                        <a href="#api-tester" class="list-group-item list-group-item-action">API Tester</a>
+                    </div>
+                </div>
+                
+                <div class="col-lg-9">
+                    <!-- Main API Documentation -->
+                    <div class="api-section mb-5" id="data-ingestion">
+                        <h2>Data Ingestion</h2>
+                        <p>Upload and manage datasets that will be used in the ML pipeline.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/data_ingestion</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Upload Dataset</h5>
+                                <p>Upload and store a dataset file in MinIO storage.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> multipart/form-data</p>
+                                
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Type</th>
+                                            <th>Required</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>file</td>
+                                            <td>File</td>
+                                            <td>Yes</td>
+                                            <td>CSV, Parquet, or JSON file to upload</td>
+                                        </tr>
+                                        <tr>
+                                            <td>dataset_name</td>
+                                            <td>String</td>
+                                            <td>Yes</td>
+                                            <td>Name for the dataset</td>
+                                        </tr>
+                                        <tr>
+                                            <td>description</td>
+                                            <td>String</td>
+                                            <td>No</td>
+                                            <td>Description of the dataset</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "name": "example_dataset",
+    "message": "Dataset uploaded successfully",
+    "preview": {
+        "num_rows": 1000,
+        "num_columns": 10,
+        "rows": [
+            // First few rows of data as JSON
+        ]
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/data_ingestion</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Datasets</h5>
+                                <p>Get a list of all available datasets.</p>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "datasets": [
+        {
+            "id": "12345",
+            "name": "example_dataset",
+            "description": "Example dataset description",
+            "file_type": "csv",
+            "created_at": "2023-01-01T12:00:00",
+            "num_rows": 1000,
+            "num_columns": 10
+            // Additional metadata
+        },
+        // More datasets
+    ]
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/data_ingestion/{dataset_id}</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Get Dataset Info</h5>
+                                <p>Get detailed information about a specific dataset.</p>
+                                
+                                <h6>Path Parameters</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>dataset_id</td>
+                                            <td>String</td>
+                                            <td>ID of the dataset</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "id": "12345",
+    "name": "example_dataset",
+    "description": "Example dataset description",
+    "file_type": "csv",
+    "created_at": "2023-01-01T12:00:00",
+    "num_rows": 1000,
+    "num_columns": 10,
+    "schema": {
+        "fields": [
+            {"name": "column1", "type": "string"},
+            {"name": "column2", "type": "integer"}
+            // More schema fields
+        ]
+    }
+    // Additional metadata
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-danger text-white me-2">DELETE</span>
+                                <code>/data_ingestion/{dataset_id}</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Delete Dataset</h5>
+                                <p>Delete a specific dataset.</p>
+                                
+                                <h6>Path Parameters</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>dataset_id</td>
+                                            <td>String</td>
+                                            <td>ID of the dataset</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "message": "Dataset deleted successfully"
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="data-preprocessing">
+                        <h2>Data Preprocessing</h2>
+                        <p>Clean, transform, and prepare data for machine learning.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/data_preprocessing</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Preprocess Dataset</h5>
+                                <p>Perform preprocessing operations on a dataset.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "operations": [
+        {"type": "remove_nulls", "columns": ["col1", "col2"]},
+        {"type": "fillna", "columns": ["col3"], "value": 0},
+        {"type": "normalize", "columns": ["col4", "col5"], "method": "minmax"},
+        {"type": "outlier_removal", "columns": ["col6"], "method": "iqr", "threshold": 1.5}
+    ],
+    "output_name": "preprocessed_dataset_name"
+}</code></pre>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "job_id": "job-12345",
+    "status": "COMPLETED",
+    "processed_dataset_id": "67890",
+    "message": "Data preprocessing completed successfully",
+    "preview": {
+        "num_rows": 950,
+        "num_columns": 12,
+        "rows": [
+            // First few rows of processed data
+        ]
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/data_preprocessing/operations</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Preprocessing Operations</h5>
+                                <p>Get a list of all available preprocessing operations.</p>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "available_operations": {
+        "remove_nulls": "Remove rows with null values in specified columns",
+        "fillna": "Fill null values with specified value",
+        "normalize": "Normalize values using specified method (minmax, zscore)",
+        "outlier_removal": "Remove outliers using specified method (iqr, zscore)",
+        "categorical_encoding": "Encode categorical variables (one-hot, label)",
+        "datetime_features": "Extract features from datetime columns",
+        "binning": "Bin continuous variables into discrete categories"
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/data_preprocessing/dataset/{dataset_id}/preview</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Preview Dataset</h5>
+                                <p>Get a preview of the dataset (first few rows).</p>
+                                
+                                <h6>Path Parameters</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Type</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>dataset_id</td>
+                                            <td>String</td>
+                                            <td>ID of the dataset</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                
+                                <h6>Query Parameters</h6>
+                                <table class="table table-sm table-bordered">
+                                    <thead>
+                                        <tr>
+                                            <th>Parameter</th>
+                                            <th>Type</th>
+                                            <th>Default</th>
+                                            <th>Description</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <tr>
+                                            <td>limit</td>
+                                            <td>Integer</td>
+                                            <td>10</td>
+                                            <td>Number of rows to preview</td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="feature-engineering">
+                        <h2>Feature Engineering</h2>
+                        <p>Extract and transform features for ML models.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/feature_engineering</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Engineer Features</h5>
+                                <p>Perform feature engineering operations on a dataset.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "operations": [
+        {"type": "polynomial_features", "columns": ["col1", "col2"], "degree": 2},
+        {"type": "binning", "column": "col3", "bins": 5, "labels": ["v_low", "low", "medium", "high", "v_high"]},
+        {"type": "text_vectorization", "column": "text_col", "method": "tfidf", "max_features": 1000},
+        {"type": "pca", "columns": ["col4", "col5", "col6"], "n_components": 2}
+    ],
+    "output_name": "featured_dataset_name"
+}</code></pre>
+                                
+                                <h6>Response</h6>
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "job_id": "job-12345",
+    "status": "COMPLETED",
+    "processed_dataset_id": "67890",
+    "message": "Feature engineering completed successfully",
+    "preview": {
+        "num_rows": 950,
+        "num_columns": 15,
+        "rows": [
+            // First few rows of data with engineered features
+        ]
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/feature_engineering/operations</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Feature Engineering Operations</h5>
+                                <p>Get a list of all available feature engineering operations.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/feature_engineering/dataset/{dataset_id}/features</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Get Dataset Features</h5>
+                                <p>Get the list of features in the dataset.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="model-selection">
+                        <h2>Model Selection</h2>
+                        <p>Select the best ML model for your data.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/model_selection/models</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Available Models</h5>
+                                <p>Get a list of all available ML models for training.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/model_selection/recommend</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Recommend Model</h5>
+                                <p>Get model recommendations based on dataset characteristics.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "target_column": "target",
+    "problem_type": "classification",
+    "evaluation_metric": "accuracy"
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/model_selection/compare</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Compare Models</h5>
+                                <p>Compare multiple models on a dataset.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "target_column": "target",
+    "problem_type": "classification",
+    "models": [
+        {"name": "random_forest_classifier", "hyperparameters": {"n_estimators": 100}},
+        {"name": "xgboost_classifier", "hyperparameters": {"n_estimators": 100}}
+    ],
+    "evaluation_metrics": ["accuracy", "f1", "precision", "recall"],
+    "cv_folds": 5
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="model-training">
+                        <h2>Model Training & Evaluation</h2>
+                        <p>Train and evaluate machine learning models.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/model_training_evaluation/train</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Train Model</h5>
+                                <p>Train a machine learning model on a dataset.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "target_column": "target",
+    "feature_columns": ["feature1", "feature2"],
+    "model_name": "random_forest_classifier",
+    "hyperparameters": {
+        "n_estimators": 100,
+        "max_depth": 10
+    },
+    "test_size": 0.2,
+    "random_state": 42,
+    "model_description": "Random Forest model for predicting X"
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/model_training_evaluation/evaluate/{model_id}</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Get Model Evaluation</h5>
+                                <p>Get evaluation metrics for a trained model.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/model_training_evaluation/models</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Trained Models</h5>
+                                <p>Get a list of all trained models.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/model_training_evaluation/cross_validate</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Cross-Validate Model</h5>
+                                <p>Perform cross-validation for a model.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="visualization">
+                        <h2>Visualization</h2>
+                        <p>Generate visualizations from data and models.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/visualization/data</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Create Data Visualization</h5>
+                                <p>Generate visualizations from dataset data.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "visualization_type": "histogram",
+    "columns": ["column1"],
+    "title": "Distribution of Values",
+    "options": {
+        "bins": 20,
+        "figsize": [10, 6]
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/visualization/model/{model_id}</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Create Model Visualization</h5>
+                                <p>Generate visualizations from model data.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "visualization_type": "confusion_matrix",
+    "title": "Confusion Matrix",
+    "options": {
+        "figsize": [8, 8],
+        "cmap": "Blues"
+    }
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/visualization/types</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Get Visualization Types</h5>
+                                <p>Get available visualization types.</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section mb-5" id="deployment">
+                        <h2>Deployment</h2>
+                        <p>Deploy trained models for prediction.</p>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/deployment/deploy</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Deploy Model</h5>
+                                <p>Deploy a trained ML model for predictions.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "model_id": "12345",
+    "deployment_name": "my-model-endpoint",
+    "description": "Deployed model for product recommendations",
+    "version": "1.0"
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-primary text-white me-2">GET</span>
+                                <code>/deployment/list</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>List Deployments</h5>
+                                <p>Get a list of all deployed models.</p>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/deployment/{deployment_id}/predict</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Predict</h5>
+                                <p>Make predictions using a deployed model.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "data": [
+        {"feature1": 1.0, "feature2": 2.0},
+        {"feature1": 3.0, "feature2": 4.0}
+    ]
+}</code></pre>
+                            </div>
+                        </div>
+                        
+                        <div class="endpoint-card mb-4">
+                            <div class="endpoint-header">
+                                <span class="badge bg-success text-white me-2">POST</span>
+                                <code>/deployment/{deployment_id}/batch_predict</code>
+                            </div>
+                            <div class="endpoint-body">
+                                <h5>Batch Predict</h5>
+                                <p>Make batch predictions using a deployed model.</p>
+                                
+                                <h6>Request</h6>
+                                <p><strong>Content-Type:</strong> application/json</p>
+                                
+                                <pre class="p-3 bg-dark code-block"><code>{
+    "dataset_id": "12345",
+    "output_dataset_name": "predictions_output"
+}</code></pre>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="api-section" id="api-tester">
+                        <h2>API Tester</h2>
+                        <p>Test API endpoints directly from this page.</p>
+                        
+                        <div class="card mb-4">
+                            <div class="card-body">
+                                <form id="api-test-form">
+                                    <div class="mb-3">
+                                        <label for="endpoint-select" class="form-label">Endpoint</label>
+                                        <select class="form-select" id="endpoint-select">
+                                            <option value="">Select an endpoint</option>
+                                            <optgroup label="Data Ingestion">
+                                                <option value="GET:/data_ingestion">GET /data_ingestion</option>
+                                                <option value="POST:/data_ingestion">POST /data_ingestion</option>
+                                            </optgroup>
+                                            <optgroup label="Data Preprocessing">
+                                                <option value="GET:/data_preprocessing/operations">GET /data_preprocessing/operations</option>
+                                                <option value="POST:/data_preprocessing">POST /data_preprocessing</option>
+                                            </optgroup>
+                                            <optgroup label="Model Selection">
+                                                <option value="GET:/model_selection/models">GET /model_selection/models</option>
+                                            </optgroup>
+                                            <optgroup label="Deployment">
+                                                <option value="GET:/deployment/list">GET /deployment/list</option>
+                                            </optgroup>
+                                        </select>
+                                    </div>
+                                    
+                                    <div id="request-body-container" class="mb-3" style="display: none;">
+                                        <label for="request-body" class="form-label">Request Body (JSON)</label>
+                                        <textarea class="form-control" id="request-body" rows="10"></textarea>
+                                    </div>
+                                    
+                                    <div id="file-upload-container" class="mb-3" style="display: none;">
+                                        <label for="file-upload" class="form-label">File Upload</label>
+                                        <input class="form-control" type="file" id="file-upload">
+                                    </div>
+
+                                    <div class="mb-3">
+                                        <button type="submit" class="btn btn-primary" id="test-api-btn">Send Request</button>
+                                    </div>
+                                </form>
+                                
+                                <div id="api-response-container" class="mt-4" style="display: none;">
+                                    <h6>Response</h6>
+                                    <div class="d-flex align-items-center mb-2">
+                                        <span class="badge bg-success me-2" id="response-status"></span>
+                                        <span id="response-time" class="small text-muted"></span>
+                                    </div>
+                                    <pre class="p-3 bg-dark code-block"><code id="response-body"></code></pre>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-dark text-white py-4">
+        <div class="container">
+            <div class="row align-items-center">
+                <div class="col-md-6">
+                    <p class="mb-md-0">ML Pipeline Platform &copy; 2023</p>
+                </div>
+                <div class="col-md-6 text-md-end">
+                    <a href="/" class="text-white me-3">Home</a>
+                    <a href="/api/docs" class="text-white me-3">API Docs</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+    <script src="/static/js/api_test.js"></script>
+    <script>
+        // Initialize Feather icons
+        feather.replace();
+        
+        // Smooth scrolling for navigation
+        document.querySelectorAll('#api-menu a').forEach(anchor => {
+            anchor.addEventListener('click', function (e) {
+                e.preventDefault();
+                
+                const targetId = this.getAttribute('href');
+                const targetElement = document.querySelector(targetId);
+                
+                window.scrollTo({
+                    top: targetElement.offsetTop - 20,
+                    behavior: 'smooth'
+                });
+                
+                // Update active class
+                document.querySelectorAll('#api-menu a').forEach(a => a.classList.remove('active'));
+                this.classList.add('active');
+            });
+        });
+        
+        // Update active menu item on scroll
+        window.addEventListener('scroll', function() {
+            const sections = document.querySelectorAll('.api-section');
+            
+            sections.forEach(section => {
+                const sectionTop = section.offsetTop - 100;
+                const sectionBottom = sectionTop + section.offsetHeight;
+                
+                if (window.scrollY >= sectionTop && window.scrollY < sectionBottom) {
+                    const id = section.getAttribute('id');
+                    document.querySelectorAll('#api-menu a').forEach(a => a.classList.remove('active'));
+                    document.querySelector(`#api-menu a[href="#${id}"]`).classList.add('active');
+                }
+            });
+        });
+    </script>
+</body>
+</html>
