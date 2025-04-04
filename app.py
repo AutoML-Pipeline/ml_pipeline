@@ -44,12 +44,23 @@ app.config['SERVICES_STATUS'] = {
     'database': False
 }
 
+# Configure MinIO settings
+# Using provided credentials
+app.config['MINIO_ENDPOINT'] = '127.0.0.1:9090'  # Removing the /buckets part
+app.config['MINIO_ACCESS_KEY'] = ''  # Public bucket, no access key needed
+app.config['MINIO_SECRET_KEY'] = ''  # Public bucket, no secret key needed
+app.config['MINIO_SECURE'] = False  # Using http, not https
+app.config['MINIO_BUCKET_NAME'] = 'ml-pipeline-sample'
+
 # Try to initialize MinIO connection
 try:
     from services.minio_service import MinioService
-    minio_service = MinioService()
-    # Try a basic operation to verify connection
-    minio_service.initialize_client()
+    minio_service = MinioService(
+        endpoint=app.config['MINIO_ENDPOINT'],
+        access_key=app.config['MINIO_ACCESS_KEY'],
+        secret_key=app.config['MINIO_SECRET_KEY'],
+        secure=app.config['MINIO_SECURE']
+    )
     app.config['SERVICES_STATUS']['minio'] = True
     logger.info("MinIO service initialized successfully")
 except Exception as e:

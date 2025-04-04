@@ -26,13 +26,13 @@ class MinioService:
             # Use instance variables rather than Flask app config
             
             self.client = Minio(
-                endpoint=endpoint,
-                access_key=access_key,
-                secret_key=secret_key,
-                secure=secure
+                endpoint=self.endpoint,
+                access_key=self.access_key,
+                secret_key=self.secret_key,
+                secure=self.secure
             )
             
-            logger.info(f"MinIO client initialized with endpoint {endpoint}")
+            logger.info(f"MinIO client initialized with endpoint {self.endpoint}")
             
         except Exception as e:
             logger.error(f"Error initializing MinIO client: {str(e)}")
