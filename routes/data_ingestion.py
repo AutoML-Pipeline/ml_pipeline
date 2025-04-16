@@ -59,7 +59,7 @@ def ingest_data():
         
         # Check file extension
         allowed_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {'csv', 'parquet', 'json'})
-        file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
+        file_ext = file.filename.rsplit('.', 1)[1].lower() if file.filename and '.' in file.filename else ''
         if file_ext not in allowed_extensions:
             error_msg = f"File format not supported. Allowed formats: {', '.join(allowed_extensions)}"
             if request.headers.get('Accept') == 'application/json':

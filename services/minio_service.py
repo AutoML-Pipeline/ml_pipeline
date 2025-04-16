@@ -14,10 +14,21 @@ class MinioService:
     def __init__(self, endpoint=None, access_key=None, secret_key=None, secure=None):
         """Initialize the MinIO client with provided parameters or defaults"""
         self.client = None
-        self.endpoint = endpoint if endpoint is not None else 'localhost:9000'
-        self.access_key = access_key if access_key is not None else 'minioadmin'
-        self.secret_key = secret_key if secret_key is not None else 'minioadmin'
-        self.secure = secure if secure is not None else False
+        
+        # Use Flask app config if available, otherwise use parameters or defaults
+        try:
+            from flask import current_app
+            self.endpoint = endpoint if endpoint is not None else current_app.config.get('MINIO_ENDPOINT', '127.0.0.1:9090')
+            self.access_key = access_key if access_key is not None else current_app.config.get('MINIO_ACCESS_KEY', '')
+            self.secret_key = secret_key if secret_key is not None else current_app.config.get('MINIO_SECRET_KEY', '')
+            self.secure = secure if secure is not None else current_app.config.get('MINIO_SECURE', False)
+        except RuntimeError:
+            # We're outside of application context
+            self.endpoint = endpoint if endpoint is not None else '127.0.0.1:9090'
+            self.access_key = access_key if access_key is not None else ''
+            self.secret_key = secret_key if secret_key is not None else ''
+            self.secure = secure if secure is not None else False
+            
         self.initialize_client()
     
     def initialize_client(self):

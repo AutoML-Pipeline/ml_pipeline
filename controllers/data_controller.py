@@ -27,9 +27,26 @@ class DataController:
     
     def _initialize_minio_service(self):
         """Initialize MinIO service with fallback to mock service if needed"""
+        # First try to check if we should always use mock services
+        try:
+            from flask import current_app
+            use_mock = current_app.config.get('USE_MOCK_SERVICES', False)
+            if use_mock:
+                from services.mock_minio_service import MockMinioService
+                logger.info("Using MockMinioService as configured")
+                return MockMinioService()
+        except (RuntimeError, ImportError):
+            # Outside Flask context or module import error, continue with normal flow
+            pass
+            
+        # Try to initialize the real MinIO service
         try:
             from services.minio_service import MinioService
-            return MinioService()
+            service = MinioService()
+            # Test connection by listing buckets
+            service.client.list_buckets()
+            logger.info("Successfully connected to MinIO service")
+            return service
         except Exception as e:
             logger.warning(f"Could not initialize MinIO service: {str(e)}")
             try:
