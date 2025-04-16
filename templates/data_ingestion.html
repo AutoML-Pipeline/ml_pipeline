@@ -1,0 +1,241 @@
+{% extends "base_layout.html" %}
+
+{% block title %}Data Ingestion - ML Pipeline Platform{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row">
+        <div class="col-lg-8 mx-auto">
+            <div class="card border-0 shadow-sm mb-4">
+                <div class="card-header bg-primary text-white py-3">
+                    <h4 class="mb-0">
+                        <i data-feather="upload-cloud" class="me-2"></i>
+                        Upload Dataset
+                    </h4>
+                </div>
+                <div class="card-body p-4">
+                    {% if message %}
+                    <div class="alert alert-{{ message_type }} alert-dismissible fade show" role="alert">
+                        {{ message }}
+                        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+                    </div>
+                    {% endif %}
+                    
+                    <form action="/data_ingestion" method="post" enctype="multipart/form-data" id="upload-form">
+                        <div class="mb-3">
+                            <label for="dataset_name" class="form-label">Dataset Name <span class="text-danger">*</span></label>
+                            <input type="text" class="form-control" id="dataset_name" name="dataset_name" required placeholder="Enter a name for your dataset">
+                            <div class="form-text">Choose a descriptive name that helps you identify this dataset later.</div>
+                        </div>
+                        
+                        <div class="mb-3">
+                            <label for="description" class="form-label">Description</label>
+                            <textarea class="form-control" id="description" name="description" rows="3" placeholder="Describe the contents and purpose of this dataset"></textarea>
+                        </div>
+                        
+                        <div class="mb-4">
+                            <label for="file" class="form-label">Dataset File <span class="text-danger">*</span></label>
+                            <div class="input-group">
+                                <input type="file" class="form-control" id="file" name="file" required accept=".csv,.parquet,.json">
+                                <label class="input-group-text" for="file">
+                                    <i data-feather="file" class="feather-small"></i>
+                                </label>
+                            </div>
+                            <div class="form-text">Supported formats: CSV, Parquet, JSON</div>
+                        </div>
+                        
+                        <div class="d-grid">
+                            <button type="submit" class="btn btn-primary" id="upload-btn">
+                                <i data-feather="upload" class="feather-small me-1"></i> 
+                                Upload Dataset
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+            
+            <div class="card border-0 shadow-sm">
+                <div class="card-header bg-dark text-white py-3">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <h4 class="mb-0">
+                            <i data-feather="database" class="me-2"></i>
+                            Available Datasets
+                        </h4>
+                        <button class="btn btn-sm btn-outline-light refresh-datasets">
+                            <i data-feather="refresh-cw" class="feather-small"></i>
+                            Refresh
+                        </button>
+                    </div>
+                </div>
+                <div class="card-body p-0">
+                    <div class="table-responsive">
+                        <table class="table table-hover mb-0" id="datasets-table">
+                            <thead class="table-light">
+                                <tr>
+                                    <th>Name</th>
+                                    <th>File Type</th>
+                                    <th>Size</th>
+                                    <th>Uploaded</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody id="datasets-body">
+                                {% if datasets %}
+                                    {% for dataset in datasets %}
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center">
+                                                {% if dataset.file_type == 'csv' %}
+                                                    <i data-feather="file-text" class="me-2 text-success"></i>
+                                                {% elif dataset.file_type == 'parquet' %}
+                                                    <i data-feather="file" class="me-2 text-primary"></i>
+                                                {% elif dataset.file_type == 'json' %}
+                                                    <i data-feather="file-text" class="me-2 text-warning"></i>
+                                                {% else %}
+                                                    <i data-feather="file" class="me-2"></i>
+                                                {% endif %}
+                                                <div>
+                                                    <strong>{{ dataset.name }}</strong>
+                                                    {% if dataset.description %}
+                                                    <div class="small text-muted">{{ dataset.description }}</div>
+                                                    {% endif %}
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>{{ dataset.file_type | upper }}</td>
+                                        <td>{{ dataset.size_formatted }}</td>
+                                        <td>{{ dataset.created_at | date }}</td>
+                                        <td>
+                                            <div class="btn-group">
+                                                <a href="/data_ingestion/{{ dataset.id }}" class="btn btn-sm btn-outline-primary">
+                                                    <i data-feather="info" class="feather-small"></i>
+                                                </a>
+                                                <button class="btn btn-sm btn-outline-danger delete-dataset" data-id="{{ dataset.id }}" data-name="{{ dataset.name }}">
+                                                    <i data-feather="trash-2" class="feather-small"></i>
+                                                </button>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                    {% endfor %}
+                                {% else %}
+                                    <tr>
+                                        <td colspan="5" class="text-center py-4">
+                                            <div class="text-muted">
+                                                <i data-feather="inbox" class="mb-2" style="width: 48px; height: 48px;"></i>
+                                                <p>No datasets available</p>
+                                                <p class="small">Upload your first dataset using the form above</p>
+                                            </div>
+                                        </td>
+                                    </tr>
+                                {% endif %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Delete Confirmation Modal -->
+<div class="modal fade" id="deleteModal" tabindex="-1" aria-labelledby="deleteModalLabel" aria-hidden="true">
+    <div class="modal-dialog">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="deleteModalLabel">Confirm Deletion</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body">
+                <p>Are you sure you want to delete the dataset "<span id="dataset-name-to-delete"></span>"?</p>
+                <p class="text-danger">This action cannot be undone.</p>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+                <button type="button" class="btn btn-danger" id="confirm-delete">Delete Dataset</button>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Show loading state on form submit
+        const uploadForm = document.getElementById('upload-form');
+        const uploadBtn = document.getElementById('upload-btn');
+
+        if (uploadForm) {
+            uploadForm.addEventListener('submit', function() {
+                uploadBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Uploading...';
+                uploadBtn.disabled = true;
+            });
+        }
+        
+        // Handle refresh datasets button
+        const refreshBtn = document.querySelector('.refresh-datasets');
+        if (refreshBtn) {
+            refreshBtn.addEventListener('click', function() {
+                window.location.reload();
+            });
+        }
+        
+        // Handle dataset deletion
+        const deleteButtons = document.querySelectorAll('.delete-dataset');
+        const deleteModal = new bootstrap.Modal(document.getElementById('deleteModal'));
+        const datasetNameElement = document.getElementById('dataset-name-to-delete');
+        const confirmDeleteBtn = document.getElementById('confirm-delete');
+        
+        let datasetToDelete = null;
+        
+        deleteButtons.forEach(button => {
+            button.addEventListener('click', function() {
+                const datasetId = this.getAttribute('data-id');
+                const datasetName = this.getAttribute('data-name');
+                
+                datasetToDelete = datasetId;
+                datasetNameElement.textContent = datasetName;
+                
+                deleteModal.show();
+            });
+        });
+        
+        if (confirmDeleteBtn) {
+            confirmDeleteBtn.addEventListener('click', function() {
+                if (datasetToDelete) {
+                    // Show loading state
+                    this.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span> Deleting...';
+                    this.disabled = true;
+                    
+                    // Send delete request
+                    fetch(`/data_ingestion/${datasetToDelete}`, {
+                        method: 'DELETE',
+                        headers: {
+                            'Content-Type': 'application/json'
+                        }
+                    })
+                    .then(response => {
+                        if (response.ok) {
+                            window.location.reload();
+                        } else {
+                            throw new Error('Failed to delete dataset');
+                        }
+                    })
+                    .catch(error => {
+                        console.error('Error:', error);
+                        this.innerHTML = 'Delete Dataset';
+                        this.disabled = false;
+                        
+                        // Show error message
+                        const modalBody = document.querySelector('.modal-body');
+                        const errorMsg = document.createElement('div');
+                        errorMsg.className = 'alert alert-danger mt-3';
+                        errorMsg.textContent = 'Error deleting dataset. Please try again.';
+                        modalBody.appendChild(errorMsg);
+                    });
+                }
+            });
+        }
+    });
+</script>
+{% endblock %}

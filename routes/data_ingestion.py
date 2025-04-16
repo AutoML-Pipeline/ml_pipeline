@@ -1,6 +1,7 @@
-from flask import Blueprint, request, jsonify, current_app
+from flask import Blueprint, request, jsonify, current_app, render_template, flash, redirect, url_for
 import os
 import logging
+import datetime
 from controllers.data_controller import DataController
 
 # Configure logging
@@ -59,9 +60,40 @@ def ingest_data():
         logger.error(f"Error in data ingestion: {str(e)}")
         return jsonify({"error": "Failed to process data ingestion", "details": str(e)}), 500
 
+# Web UI route for data ingestion page
 @data_ingestion_bp.route('', methods=['GET'])
+def data_ingestion_ui():
+    """Render the data ingestion UI page"""
+    try:
+        # Initialize controller with application context
+        data_controller = DataController()
+        datasets = data_controller.list_datasets()
+        
+        # Format dates and sizes for display
+        for dataset in datasets:
+            # Convert size in bytes to human-readable format
+            size_bytes = dataset.get('size_bytes', 0)
+            if size_bytes < 1024:
+                dataset['size_formatted'] = f"{size_bytes} B"
+            elif size_bytes < 1024 * 1024:
+                dataset['size_formatted'] = f"{size_bytes / 1024:.1f} KB"
+            elif size_bytes < 1024 * 1024 * 1024:
+                dataset['size_formatted'] = f"{size_bytes / (1024 * 1024):.1f} MB"
+            else:
+                dataset['size_formatted'] = f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"
+                
+        return render_template('data_ingestion.html', datasets=datasets)
+    except Exception as e:
+        logger.error(f"Error rendering data ingestion page: {str(e)}")
+        return render_template('data_ingestion.html', 
+                              message=f"Error loading datasets: {str(e)}", 
+                              message_type="danger", 
+                              datasets=[])
+
+# API route for listing datasets (JSON response)
+@data_ingestion_bp.route('/api/datasets', methods=['GET'])
 def list_datasets():
-    """List all available datasets"""
+    """List all available datasets (API)"""
     try:
         # Initialize controller with application context
         data_controller = DataController()
