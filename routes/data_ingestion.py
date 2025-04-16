@@ -29,18 +29,30 @@ def ingest_data():
         
         # Check if request has the file part
         if 'file' not in request.files:
-            return jsonify({"error": "No file part in the request"}), 400
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({"error": "No file part in the request"}), 400
+            else:
+                flash("No file part in the request", "danger")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
         file = request.files['file']
         
         # Check if a file was selected
         if file.filename == '':
-            return jsonify({"error": "No file selected"}), 400
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({"error": "No file selected"}), 400
+            else:
+                flash("No file selected", "danger")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
         # Check if dataset name is provided
         dataset_name = request.form.get('dataset_name')
         if not dataset_name:
-            return jsonify({"error": "Dataset name is required"}), 400
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({"error": "Dataset name is required"}), 400
+            else:
+                flash("Dataset name is required", "danger")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
         # Get description if provided
         description = request.form.get('description', '')
@@ -49,16 +61,30 @@ def ingest_data():
         allowed_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {'csv', 'parquet', 'json'})
         file_ext = file.filename.rsplit('.', 1)[1].lower() if '.' in file.filename else ''
         if file_ext not in allowed_extensions:
-            return jsonify({"error": f"File format not supported. Allowed formats: {', '.join(allowed_extensions)}"}), 400
+            error_msg = f"File format not supported. Allowed formats: {', '.join(allowed_extensions)}"
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({"error": error_msg}), 400
+            else:
+                flash(error_msg, "danger")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
         # Process the upload
         result = data_controller.upload_dataset(file, dataset_name, description, file_ext)
         
-        return jsonify(result), 201
+        # Return appropriate response based on request type
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify(result), 201
+        else:
+            flash(f"Dataset '{dataset_name}' uploaded successfully", "success")
+            return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
     except Exception as e:
         logger.error(f"Error in data ingestion: {str(e)}")
-        return jsonify({"error": "Failed to process data ingestion", "details": str(e)}), 500
+        if request.headers.get('Accept') == 'application/json':
+            return jsonify({"error": "Failed to process data ingestion", "details": str(e)}), 500
+        else:
+            flash(f"Error uploading dataset: {str(e)}", "danger")
+            return redirect(url_for('data_ingestion.data_ingestion_ui'))
 
 # Web UI route for data ingestion page
 @data_ingestion_bp.route('', methods=['GET'])
@@ -103,9 +129,63 @@ def list_datasets():
         logger.error(f"Error listing datasets: {str(e)}")
         return jsonify({"error": "Failed to list datasets", "details": str(e)}), 500
 
+# UI route for viewing dataset details
 @data_ingestion_bp.route('/<dataset_id>', methods=['GET'])
-def get_dataset_info(dataset_id):
-    """Get information about a specific dataset"""
+def dataset_details_ui(dataset_id):
+    """Render the dataset details UI page"""
+    # Check if the request is for JSON (API) or HTML (UI)
+    if request.headers.get('Accept') == 'application/json':
+        return get_dataset_info_api(dataset_id)
+    
+    try:
+        # Initialize controller with application context
+        data_controller = DataController()
+        dataset_info = data_controller.get_dataset_info(dataset_id)
+        
+        if not dataset_info:
+            flash("Dataset not found", "danger")
+            return redirect(url_for('data_ingestion.data_ingestion_ui'))
+        
+        # Format size for display
+        size_bytes = dataset_info.get('size_bytes', 0)
+        if size_bytes < 1024:
+            dataset_info['size_formatted'] = f"{size_bytes} B"
+        elif size_bytes < 1024 * 1024:
+            dataset_info['size_formatted'] = f"{size_bytes / 1024:.1f} KB"
+        elif size_bytes < 1024 * 1024 * 1024:
+            dataset_info['size_formatted'] = f"{size_bytes / (1024 * 1024):.1f} MB"
+        else:
+            dataset_info['size_formatted'] = f"{size_bytes / (1024 * 1024 * 1024):.1f} GB"
+        
+        # Get preview data if available
+        preview_data = None
+        try:
+            preview_data = data_controller.get_dataset_preview(dataset_id)
+        except Exception as preview_error:
+            logger.error(f"Error getting dataset preview: {str(preview_error)}")
+            flash(f"Could not load dataset preview: {str(preview_error)}", "warning")
+        
+        # Get schema if available
+        schema_info = None
+        try:
+            schema_info = data_controller.get_dataset_schema(dataset_id)
+        except Exception as schema_error:
+            logger.error(f"Error getting dataset schema: {str(schema_error)}")
+            flash(f"Could not load dataset schema: {str(schema_error)}", "warning")
+        
+        return render_template('dataset_details.html', 
+                               dataset=dataset_info,
+                               preview=preview_data,
+                               schema=schema_info)
+    except Exception as e:
+        logger.error(f"Error rendering dataset details page: {str(e)}")
+        flash(f"Error loading dataset details: {str(e)}", "danger")
+        return redirect(url_for('data_ingestion.data_ingestion_ui'))
+
+# API route for getting dataset info (JSON response)
+@data_ingestion_bp.route('/api/datasets/<dataset_id>', methods=['GET'])
+def get_dataset_info_api(dataset_id):
+    """Get information about a specific dataset (API)"""
     try:
         # Initialize controller with application context
         data_controller = DataController()
