@@ -5,12 +5,13 @@ DEBUG = True
 SECRET_KEY = os.environ.get("SESSION_SECRET", "default-dev-key")
 
 # MinIO configuration
-MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "localhost:9000")
+MINIO_ENDPOINT = os.environ.get("MINIO_ENDPOINT", "127.0.0.1:50877")
 MINIO_ACCESS_KEY = os.environ.get("MINIO_ACCESS_KEY", "minioadmin")
 MINIO_SECRET_KEY = os.environ.get("MINIO_SECRET_KEY", "minioadmin")
 MINIO_SECURE = os.environ.get("MINIO_SECURE", "False").lower() == "true"
 
 # MinIO bucket configuration
+BUCKET_MLPIPELINE = "mlpipeline"  # Main bucket for raw data
 BUCKET_DATA_RAW = "raw-data"
 BUCKET_DATA_PROCESSED = "processed-data"
 BUCKET_MODELS = "ml-models"

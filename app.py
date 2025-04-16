@@ -28,6 +28,7 @@ try:
     app.register_blueprint(data_preprocessing_bp)
     app.register_blueprint(feature_engineering_bp)
     app.register_blueprint(model_selection_bp)
+    
     # Register the following blueprints as they are implemented
     # app.register_blueprint(model_training_evaluation_bp)
     # app.register_blueprint(visualization_bp)

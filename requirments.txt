@@ -1,0 +1,4 @@
+pip install 
+flask flask-sqlalchemy gunicorn 
+email-validator matplotlib minio pandas psycopg2-binary pyspark routes 
+scikit-learn seaborn werkzeug xgboost

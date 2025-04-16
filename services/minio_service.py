@@ -1,9 +1,10 @@
 import os
 import logging
-import tempfile
+import io
 from minio import Minio
 from minio.error import S3Error
 from flask import current_app
+from urllib.parse import urlparse
 
 # Configure logging
 logger = logging.getLogger(__name__)
@@ -11,33 +12,19 @@ logger = logging.getLogger(__name__)
 class MinioService:
     """Service for interacting with MinIO object storage"""
     
-    def __init__(self, endpoint=None, access_key=None, secret_key=None, secure=None):
-        """Initialize the MinIO client with provided parameters or defaults"""
-        self.client = None
-        
-        # Use Flask app config if available, otherwise use parameters or defaults
+    def __init__(self):
+        """Initialize the MinIO client"""
         try:
-            from flask import current_app
-            self.endpoint = endpoint if endpoint is not None else current_app.config.get('MINIO_ENDPOINT', '127.0.0.1:9090')
-            self.access_key = access_key if access_key is not None else current_app.config.get('MINIO_ACCESS_KEY', '')
-            self.secret_key = secret_key if secret_key is not None else current_app.config.get('MINIO_SECRET_KEY', '')
-            self.secure = secure if secure is not None else current_app.config.get('MINIO_SECURE', False)
-        except RuntimeError:
-            # We're outside of application context
-            self.endpoint = endpoint if endpoint is not None else '127.0.0.1:9090'
-            self.access_key = access_key if access_key is not None else ''
-            self.secret_key = secret_key if secret_key is not None else ''
-            self.secure = secure if secure is not None else False
+            # Get configuration from Flask app
+            app_config = current_app.config
+            self.endpoint = app_config.get('MINIO_ENDPOINT', '127.0.0.1:50877')
+            self.access_key = app_config.get('MINIO_ACCESS_KEY', 'minioadmin')
+            self.secret_key = app_config.get('MINIO_SECRET_KEY', 'minioadmin')
+            self.secure = app_config.get('MINIO_SECURE', False)
             
-        self.initialize_client()
-    
-    def initialize_client(self):
-        """Initialize or re-initialize the MinIO client"""
-        try:
-            # Use instance variables rather than Flask app config
-            
+            # Initialize MinIO client
             self.client = Minio(
-                endpoint=self.endpoint,
+                self.endpoint,
                 access_key=self.access_key,
                 secret_key=self.secret_key,
                 secure=self.secure
@@ -60,43 +47,40 @@ class MinioService:
         except S3Error as e:
             logger.error(f"Error ensuring bucket {bucket_name} exists: {str(e)}")
             raise
-        except Exception as e:
-            logger.error(f"Unexpected error ensuring bucket {bucket_name} exists: {str(e)}")
-            raise
     
-    def upload_file(self, bucket_name, object_name, file_path):
+    def upload_file(self, bucket_name, object_name, file_data):
         """
         Upload a file to MinIO
         
         Args:
             bucket_name: Name of the bucket
             object_name: Name to assign to the object
-            file_path: Path to the file to upload
+            file_data: File data as bytes
         """
         try:
             # Ensure bucket exists
             self.ensure_bucket_exists(bucket_name)
             
-            # Get file size
-            file_size = os.path.getsize(file_path)
+            # Create file stream
+            file_stream = io.BytesIO(file_data)
             
             # Upload the file
-            logger.info(f"Uploading file {file_path} to {bucket_name}/{object_name}")
-            self.client.fput_object(
+            logger.info(f"Uploading file to {bucket_name}/{object_name}")
+            self.client.put_object(
                 bucket_name=bucket_name,
                 object_name=object_name,
-                file_path=file_path,
-                content_type='application/octet-stream'
+                data=file_stream,
+                length=len(file_data)
             )
             
-            logger.info(f"Uploaded {file_path} ({file_size} bytes) to {bucket_name}/{object_name}")
+            logger.info(f"Uploaded {object_name} ({len(file_data)} bytes) to {bucket_name}")
             return True
             
         except S3Error as e:
-            logger.error(f"S3 error uploading file {file_path} to {bucket_name}/{object_name}: {str(e)}")
+            logger.error(f"S3 error uploading file to {bucket_name}/{object_name}: {str(e)}")
             raise
         except Exception as e:
-            logger.error(f"Unexpected error uploading file {file_path} to {bucket_name}/{object_name}: {str(e)}")
+            logger.error(f"Unexpected error uploading file to {bucket_name}/{object_name}: {str(e)}")
             raise
     
     def download_file(self, bucket_name, object_name, file_path):

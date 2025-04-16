@@ -2,16 +2,16 @@ from flask import Blueprint, request, jsonify, current_app, render_template, fla
 import os
 import logging
 import datetime
+import tempfile
+from services.minio_service import MinioService
 from controllers.data_controller import DataController
 
 # Configure logging
 logger = logging.getLogger(__name__)
+logger.setLevel(logging.DEBUG)  # Set logging level to DEBUG
 
 # Create Blueprint
 data_ingestion_bp = Blueprint('data_ingestion', __name__, url_prefix='/data_ingestion')
-
-# We'll initialize the controller inside each route function
-# to ensure we have access to the application context
 
 @data_ingestion_bp.route('', methods=['POST'])
 def ingest_data():
@@ -24,9 +24,6 @@ def ingest_data():
     - description: (Optional) A description of the dataset
     """
     try:
-        # Initialize controller with application context
-        data_controller = DataController()
-        
         # Check if request has the file part
         if 'file' not in request.files:
             if request.headers.get('Accept') == 'application/json':
@@ -58,7 +55,7 @@ def ingest_data():
         description = request.form.get('description', '')
         
         # Check file extension
-        allowed_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {'csv', 'parquet', 'json'})
+        allowed_extensions = current_app.config.get('ALLOWED_EXTENSIONS', {'csv', 'parquet', 'json', 'jsonl'})
         file_ext = file.filename.rsplit('.', 1)[1].lower() if file.filename and '.' in file.filename else ''
         if file_ext not in allowed_extensions:
             error_msg = f"File format not supported. Allowed formats: {', '.join(allowed_extensions)}"
@@ -68,16 +65,47 @@ def ingest_data():
                 flash(error_msg, "danger")
                 return redirect(url_for('data_ingestion.data_ingestion_ui'))
         
-        # Process the upload
-        result = data_controller.upload_dataset(file, dataset_name, description, file_ext)
-        
-        # Return appropriate response based on request type
-        if request.headers.get('Accept') == 'application/json':
-            return jsonify(result), 201
-        else:
-            flash(f"Dataset '{dataset_name}' uploaded successfully", "success")
-            return redirect(url_for('data_ingestion.data_ingestion_ui'))
-        
+        try:
+            # Initialize MinIO service
+            minio_service = MinioService()
+            
+            # Read file data
+            file_data = file.read()
+            
+            # Generate object name
+            object_name = f"{dataset_name}.{file_ext}"
+            
+            # Upload to MinIO
+            minio_service.upload_file(
+                bucket_name=current_app.config.get('BUCKET_MLPIPELINE', 'mlpipeline'),
+                object_name=object_name,
+                file_data=file_data
+            )
+            
+            # Store metadata
+            data_controller = DataController()
+            result = data_controller.store_dataset_metadata(
+                dataset_name=dataset_name,
+                object_name=object_name,
+                description=description,
+                file_extension=file_ext
+            )
+            
+            # Return success response
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify(result), 201
+            else:
+                flash(f"Dataset '{dataset_name}' uploaded successfully", "success")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
+                
+        except Exception as e:
+            logger.error(f"Error uploading file: {str(e)}")
+            if request.headers.get('Accept') == 'application/json':
+                return jsonify({"error": "Failed to upload file", "details": str(e)}), 500
+            else:
+                flash(f"Error uploading file: {str(e)}", "danger")
+                return redirect(url_for('data_ingestion.data_ingestion_ui'))
+            
     except Exception as e:
         logger.error(f"Error in data ingestion: {str(e)}")
         if request.headers.get('Accept') == 'application/json':
